@@ -30,7 +30,22 @@ export class Factoid {
 	}
 
 	findAll(cb: any) {
-		this.database.find({forgotten: false}, null, {sort: { factoid: 1 }}, cb);
+		this.database.find({forgotten: false})
+			.sort('factoid -createdAt')
+			.exec(function(err, result) {
+			if (err) {
+				return cb(err, result);
+			}
+			var prev = undefined;
+			result = result.filter(function(r) {
+				if (prev && prev.factoid == r.factoid) {
+					return false;
+				}
+				prev = r;
+				return true;
+			});
+			return cb(err, result);
+		});
 	}
 
 	active(factoid:string, cb:any) {
