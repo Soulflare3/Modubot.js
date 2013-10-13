@@ -31,16 +31,19 @@ export class Factoid {
 
 	findAll(cb: any) {
 		this.database.find({forgotten: false})
-			.sort('factoid -createdAt')
+			.sort('factoid -createdAt') // Sort by factoid name, then by latest factoid with the same name
 			.exec(function(err, result) {
 			if (err) {
 				return cb(err, result);
 			}
-			var prev = undefined;
+			var prev = undefined; // This represents the previous factoid
+			// Filter out all older duplicates
 			result = result.filter(function(r) {
+				// If it's a duplicate factoid then the previous one will be later than this one
 				if (prev && prev.factoid == r.factoid) {
 					return false;
 				}
+				// New factoid, update prev
 				prev = r;
 				return true;
 			});
